@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Prod - Access Review (packaged artifact)
+Parameters:
+  ArtifactBucket:
+    Type: String
+  ArtifactKey:
+    Type: String
+Resources:
+  GrcFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: grc-lab-prod
+      Runtime: python3.11
+      Handler: src/lambda/index.handler
+      Timeout: 900
+      Role: arn:aws:iam::123456789012:role/YourLambdaRole
+      Code:
+        S3Bucket: !Ref ArtifactBucket
+        S3Key: !Ref ArtifactKey

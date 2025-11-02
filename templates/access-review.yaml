@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Demo - Access Review with inline Lambda
+Resources:
+  GrcFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: grc-lab-inline
+      Runtime: python3.11
+      Handler: src/lambda/index.handler
+      Timeout: 900
+      Role: arn:aws:iam::123456789012:role/YourLambdaRole
+      Code:
+        ZipFile: |
+          def handler(event, context):
+              return {'statusCode': 200, 'body': 'hello from inline demo'}
