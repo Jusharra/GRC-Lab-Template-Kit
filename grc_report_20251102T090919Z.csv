@@ -1,0 +1,13 @@
+domain,metric,value
+iam,users_without_mfa,2
+iam,inactive_access_keys,1
+iam,policies_with_wildcards,3
+scp,org_attached_scp_count,5
+scp,denies_root_actions_present,True
+access_analyzer,analyzers,1
+access_analyzer,external_findings,4
+cloudtrail,multi_region_trail,True
+cloudtrail,log_file_validation,True
+cloudtrail,s3_encryption,True
+securityhub,findings_open,17
+securityhub,standards_enabled,"['CIS-1.4', 'Foundational-Best-Practices']"

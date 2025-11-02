@@ -1,0 +1,58 @@
+name: deploy
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: "Stage name (dev|prod)"
+        default: "dev"
+        required: true
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  deploy:
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+      ROLE_ARN: ${{ vars.AWS_ROLE_TO_ASSUME }}
+      STAGE: ${{ github.event.inputs.stage || 'dev' }}
+      ARTIFACT: package-${{ github.event.inputs.stage || 'dev' }}.zip
+      STACK_NAME: grc-lab-${{ github.event.inputs.stage || 'dev' }}
+      TEMPLATE: templates/access-review-real.yaml # rename to stack-packaged.yaml if you prefer
+      ARTIFACT_BUCKET: <YOUR_ARTIFACT_BUCKET>
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps & package
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements.txt
+          zip -r ${ARTIFACT} src/ > /dev/null
+
+      - name: Configure AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload artifact to S3
+        run: aws s3 cp "${ARTIFACT}" "s3://${ARTIFACT_BUCKET}/${ARTIFACT}"
+
+      - name: Deploy CloudFormation
+        run: |
+          aws cloudformation deploy \
+            --template-file "${TEMPLATE}" \
+            --stack-name "${STACK_NAME}" \
+            --parameter-overrides ArtifactBucket=${ARTIFACT_BUCKET} ArtifactKey=${ARTIFACT} \
+            --capabilities CAPABILITY_NAMED_IAM
+
