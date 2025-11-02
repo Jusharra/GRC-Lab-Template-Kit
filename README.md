@@ -1,4 +1,7 @@
 # GRC Lab Template Kit
+This repository is a **GitHub Template Repository**.  
+Click **“Use this template”** to create your own GRC or DevSecOps automation lab.
+
 
 A baseline repo for **GRC Engineering** and **DevSecOps** labs with AWS focus (Lambda + CloudFormation) and a portable structure for other clouds.
 
